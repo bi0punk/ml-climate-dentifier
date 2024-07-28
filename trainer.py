@@ -5,6 +5,7 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator, load_img, i
 from tensorflow.keras.models import Sequential, load_model
 from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense
 from tensorflow.keras.optimizers import Adam
+from datetime import datetime
 
 # Ruta al conjunto de datos
 data_dir = 'dataset'
@@ -14,6 +15,18 @@ img_height, img_width = 150, 150
 batch_size = 1  # Reducir el tamaño del lote
 epochs = 10
 learning_rate = 0.001
+
+# Verificación y ajuste del dataset
+def verify_dataset(data_dir):
+    categories = ['Day', 'Evening', 'Night']
+    for category in categories:
+        category_path = os.path.join(data_dir, category)
+        if os.path.isdir(category_path):
+            images = os.listdir(category_path)
+            if len(images) < 10:
+                raise ValueError(f"Category '{category}' has less than 10 images. Please ensure each category has at least 10 images.")
+
+verify_dataset(data_dir)
 
 # Preprocesamiento de datos
 datagen = ImageDataGenerator(rescale=1.0/255)
@@ -53,8 +66,10 @@ history = model.fit(
     epochs=epochs
 )
 
-# Guardar el modelo
-model.save('day_evening_night_classifier.h5')
+# Guardar el modelo con la fecha actual
+model_filename = f"day_evening_night_classifier_{datetime.now().strftime('%Y%m%d')}.h5"
+model.save(model_filename)
+print(f"Model saved as {model_filename}")
 
 # Visualización de los resultados
 acc = history.history['accuracy']
@@ -74,9 +89,9 @@ plt.legend(loc='upper right')
 plt.title('Training Loss')
 plt.show()
 
-def test_model_with_dataset(data_dir):
+def test_model_with_dataset(data_dir, model_filename):
     # Cargar el modelo entrenado
-    model = load_model('day_evening_night_classifier.h5')
+    model = load_model(model_filename)
 
     # Definir las etiquetas
     labels = ['Day', 'Evening', 'Night']
@@ -102,4 +117,4 @@ def test_model_with_dataset(data_dir):
                 print(f"Image: {img_name}, Prediction: {predicted_label}, Confidence: {confidence:.2f}%")
 
 # Prueba del modelo con las imágenes del dataset
-test_model_with_dataset(data_dir)
+test_model_with_dataset(data_dir, model_filename)

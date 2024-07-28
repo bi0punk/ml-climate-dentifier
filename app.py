@@ -2,10 +2,10 @@ import cv2
 import numpy as np
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.image import img_to_array
-import time
+import os
 
 # Ruta al modelo entrenado
-model_path = 'day_evening_night_classifier.h5'
+model_path = 'day_evening_night_classifier_20240727.h5'
 
 # Cargar el modelo
 model = load_model(model_path)
@@ -16,8 +16,11 @@ labels = ['Day', 'Evening', 'Night']
 # URL de la cámara IP
 ip_camera_url = 'rtsp://admin:191448057devops@192.168.1.92:554/onvif1'
 
+# Probar con 'udp'
+os.environ['OPENCV_FFMPEG_CAPTURE_OPTIONS'] = 'rtsp_transport;udp'
+
 # Inicializar la captura de video
-cap = cv2.VideoCapture(ip_camera_url)
+cap = cv2.VideoCapture(ip_camera_url, cv2.CAP_FFMPEG)
 
 if not cap.isOpened():
     print("Error al abrir la cámara IP.")
@@ -49,10 +52,19 @@ while True:
     
     # Mostrar la etiqueta y la confianza en la imagen
     text = f"{predicted_label}: {confidence:.2f}%"
-    cv2.putText(frame, text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+    
+    # Calcular la posición del texto en el lado derecho
+    text_size = cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, 2, 3)[0]
+    text_x = frame.shape[1] - text_size[0] - 20
+    text_y = 60
+    
+    cv2.putText(frame, text, (text_x, text_y), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 3, cv2.LINE_AA)
+    
+    # Redimensionar la ventana
+    frame_resized = cv2.resize(frame, (640, 480))
     
     # Mostrar la imagen
-    cv2.imshow('IP Camera', frame)
+    cv2.imshow('IP Camera', frame_resized)
     
     # Salir con la tecla 'q'
     if cv2.waitKey(1) & 0xFF == ord('q'):
