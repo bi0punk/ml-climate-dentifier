@@ -1,0 +1,25 @@
+.
+├── app2.py
+├── app.py
+├── capture_15.sh
+├── captures
+│   ├── capture_20240729_030803.jpg
+├── dataset
+│   ├── clear
+│   ├── cloudy
+│   ├── day
+│   ├── evening
+│   ├── night
+│   └── partly_cloudy
+├── day_evening_night_classifier_20240728.h5
+├── day_evening_night_clear_cloudy_partly_cloudy_classifier_20240729.h5
+├── models
+├── output.avi
+├── README.md
+├── requirements.txt
+├── test.py
+├── trainer2.py
+├── trainer.py
+└── tree.txt
+
+10 directories, 193 files
