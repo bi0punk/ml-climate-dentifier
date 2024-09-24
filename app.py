@@ -6,7 +6,7 @@ import os
 import time
 
 # Ruta al modelo entrenado
-model_path = 'day_evening_night_clear_cloudy_partly_cloudy_classifier_20240729.h5'
+model_path = 'day_evening_night_clear_cloudy_partly_cloudy_classifier_20240923.h5'
 
 # Cargar el modelo
 model = load_model(model_path)
