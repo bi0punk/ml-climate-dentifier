@@ -18,6 +18,8 @@ weather_labels = ['Clear', 'Cloudy', 'Partly Cloudy']
 # URL de la cámara IP
 ip_camera_url = 'rtsp://admin:191448057devops@192.168.1.92:554/onvif1'
 
+
+
 # Configurar rtsp_transport a 'tcp'
 os.environ['OPENCV_FFMPEG_CAPTURE_OPTIONS'] = 'rtsp_transport;udp'
 
