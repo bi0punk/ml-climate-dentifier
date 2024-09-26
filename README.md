@@ -28,7 +28,7 @@ Este proyecto utiliza una cámara IP para capturar y clasificar imágenes en fun
 
 2. Modifica la URL de la cámara IP en el script si es necesario:
     ```python
-    ip_camera_url = 'rtsp://admin:191448057devops@192.168.1.92:554/onvif1'
+    ip_camera_url = 'rtsp://admin:pass@ip:554/onvif1'
     ```
 
 3. Ejecuta el script:
