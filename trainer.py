@@ -18,13 +18,14 @@ learning_rate = 0.001
 
 # Verificación y ajuste del dataset
 def verify_dataset(data_dir):
-    categories = ['Day', 'Evening', 'Night']
+    categories = ['Day', 'Evening', 'Night (Nightvision)', 'Clear', 'Cloudy', 'Partly_Cloudy']
+    min_images = 5
     for category in categories:
         category_path = os.path.join(data_dir, category)
         if os.path.isdir(category_path):
             images = os.listdir(category_path)
-            if len(images) < 10:
-                raise ValueError(f"Category '{category}' has less than 10 images. Please ensure each category has at least 10 images.")
+            if len(images) < min_images:
+                raise ValueError(f"Category '{category}' has less than {min_images} images. Please ensure each category has at least {min_images} images.")
 
 verify_dataset(data_dir)
 
@@ -52,7 +53,7 @@ model = Sequential([
     MaxPooling2D((2, 2)),
     Flatten(),
     Dense(128, activation='relu'),
-    Dense(3, activation='softmax')
+    Dense(6, activation='softmax')  # Ajustar para 6 clases
 ])
 
 # Compilación del modelo
@@ -67,7 +68,7 @@ history = model.fit(
 )
 
 # Guardar el modelo con la fecha actual
-model_filename = f"day_evening_night_classifier_{datetime.now().strftime('%Y%m%d')}.h5"
+model_filename = f"day_evening_night_clear_cloudy_partly_cloudy_classifier_{datetime.now().strftime('%Y%m%d')}.h5"
 model.save(model_filename)
 print(f"Model saved as {model_filename}")
 
@@ -94,7 +95,7 @@ def test_model_with_dataset(data_dir, model_filename):
     model = load_model(model_filename)
 
     # Definir las etiquetas
-    labels = ['Day', 'Evening', 'Night']
+    labels = ['Day', 'Evening', 'Night (Nightvision)', 'Clear', 'Cloudy', 'Partly_Cloudy']
 
     # Recorrer las imágenes del dataset
     for category in os.listdir(data_dir):
