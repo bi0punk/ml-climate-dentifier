@@ -1,5 +1,4 @@
 .
-├── app2.py
 ├── app.py
 ├── capture_15.sh
 ├── captures
@@ -18,7 +17,6 @@
 ├── README.md
 ├── requirements.txt
 ├── test.py
-├── trainer2.py
 ├── trainer.py
 └── tree.txt
 
