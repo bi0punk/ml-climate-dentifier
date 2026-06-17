@@ -36,6 +36,18 @@ Este proyecto utiliza una cámara IP para capturar y clasificar imágenes en fun
     python main.py
     ```
 
+## Variables de entorno
+
+Crea un archivo `.env`:
+
+```env
+RTSP_USER=admin
+RTSP_PASS=your_password
+RTSP_HOST=192.168.1.92
+RTSP_PORT=554
+RTSP_PATH=/onvif1
+```
+
 ## Estructura del proyecto
 
 ```plaintext
