@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # Dirección del stream RTSP
-RTSP_URL="rtsp://admin:pass@192.168.1.92:554/onvif1"
+# Configurar via variable de entorno RTSP_URL antes de ejecutar
+RTSP_URL="${RTSP_URL:-rtsp://admin:pass@192.168.1.92:554/onvif1}"
 
 # Directorio donde se guardarán las imágenes
 OUTPUT_DIR="./captures"
