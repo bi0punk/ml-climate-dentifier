@@ -54,6 +54,7 @@ captures/
 dataset/
 models/*.h5
 output.avi
+tree.txt
 
 # IDE
 .idea/
