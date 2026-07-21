@@ -51,7 +51,8 @@ def evaluate_model(model, test_gen):
     y_pred_weather = []
 
     for i in range(len(test_gen)):
-        X, y, _ = test_gen[i]
+        result = test_gen[i]
+        X, y = result[0], result[1]
         preds = model.predict(X, verbose=0)
         pred_time = np.argmax(preds[0], axis=1)
         pred_weather = np.argmax(preds[1], axis=1)

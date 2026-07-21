@@ -1,17 +1,21 @@
 camera:
-  url: "http://192.168.1.82:81/stream"
+  url: "rtsp://peww:ua3epk@192.168.1.21:554/user=peww_password=z9cnNBh8_channel=0_stream=0&onvif=0.sdp?real_stream"
   width: 640
   height: 480
   fps: 30
   buffer_size: 10
-  transport: "udp"  # udp or tcp
+  transport: "tcp"  # udp or tcp
   reconnect_delay: 1.0  # initial reconnect delay (seconds)
   max_reconnect_delay: 60.0
 
+crop:
+  enabled: true
+  region: "bottom_half"  # bottom_half: toma solo la mitad inferior del frame (cámara dual-lens)
+
 model:
-  path: "models/day_evening_night_clear_cloudy_partly_cloudy_classifier_20240923.h5"
+  path: "models/weather_classifier_20260714_020842.h5"
   input_size: 150
-  type: "single_6class"  # single_6class or dual_head
+  type: "dual_head"  # single_6class or dual_head
 
 inference:
   frame_skip: 5  # predict every N frames

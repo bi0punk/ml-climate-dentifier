@@ -1,3 +1,4 @@
+import tensorflow as tf
 from tensorflow.keras import Model
 from tensorflow.keras.layers import (
     Input, Conv2D, MaxPooling2D, Flatten, Dense, Dropout,
@@ -72,12 +73,18 @@ def get_model(backbone="cnn", input_shape=(IMG_SIZE, IMG_SIZE, 3)):
     return build_cnn(input_shape)
 
 
+def masked_categorical_crossentropy(y_true, y_pred):
+    mask = tf.cast(tf.reduce_sum(y_true, axis=-1) > 0, tf.float32)
+    loss = tf.keras.losses.categorical_crossentropy(y_true, y_pred)
+    return loss * mask
+
+
 def compile_model(model, learning_rate=0.001):
     model.compile(
         optimizer=Adam(learning_rate=learning_rate),
         loss={
-            "time": "categorical_crossentropy",
-            "weather": "categorical_crossentropy",
+            "time": masked_categorical_crossentropy,
+            "weather": masked_categorical_crossentropy,
         },
         loss_weights={"time": 1.0, "weather": 1.0},
         metrics={

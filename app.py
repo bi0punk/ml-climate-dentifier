@@ -59,6 +59,11 @@ def main():
                 break
             continue
 
+        crop_cfg = cfg.get("crop", {})
+        if crop_cfg.get("enabled") and crop_cfg.get("region") == "bottom_half":
+            h = frame.shape[0]
+            frame = frame[h // 2:, :]
+
         if streamer.should_predict():
             prediction = predictor.predict(frame)
             last_prediction = prediction

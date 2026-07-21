@@ -47,6 +47,7 @@ class Visualizer:
         return frame
 
     def show(self, frame, window_name="IP Camera"):
+        cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
         cv2.imshow(window_name, frame)
 
     def record(self, frame):

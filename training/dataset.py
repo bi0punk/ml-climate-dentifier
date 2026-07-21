@@ -1,6 +1,7 @@
 import os
 import numpy as np
 from tensorflow.keras.preprocessing.image import ImageDataGenerator, img_to_array, load_img
+from tensorflow.keras.utils import Sequence
 from sklearn.model_selection import train_test_split
 
 RAW_DIR = "dataset"
@@ -78,7 +79,7 @@ def preprocess_image(path):
     return arr
 
 
-class DualDataGenerator:
+class DualDataGenerator(Sequence):
     def __init__(self, image_paths, time_labels, weather_labels, time_known, weather_known, batch_size=32, augment=False):
         self.image_paths = image_paths
         self.time_labels = time_labels
@@ -124,13 +125,13 @@ class DualDataGenerator:
         if self.augment:
             X = self.datagen.flow(X, shuffle=False, batch_size=batch_size)[0]
 
-        return X, {"time": y_time, "weather": y_weather}, {"time": w_time, "weather": w_weather}
+        return X, {"time": y_time, "weather": y_weather}
 
     def on_epoch_end(self):
         np.random.shuffle(self.indices)
 
 
-def create_splits(raw_dir=RAW_DIR, test_size=0.15, val_size=0.15, random_state=42):
+def create_splits(raw_dir=RAW_DIR, test_size=0.15, val_size=0.15, random_state=42, batch_size=32):
     images, time_labels, weather_labels, time_known, weather_known = load_dataset(raw_dir)
 
     idx = np.arange(len(images))
@@ -144,9 +145,9 @@ def create_splits(raw_dir=RAW_DIR, test_size=0.15, val_size=0.15, random_state=4
         )
 
     return (
-        DualDataGenerator(*split_data(train_idx), augment=True),
-        DualDataGenerator(*split_data(val_idx), augment=False),
-        DualDataGenerator(*split_data(test_idx), augment=False),
+        DualDataGenerator(*split_data(train_idx), augment=True, batch_size=batch_size),
+        DualDataGenerator(*split_data(val_idx), augment=False, batch_size=batch_size),
+        DualDataGenerator(*split_data(test_idx), augment=False, batch_size=batch_size),
     )
 
 
