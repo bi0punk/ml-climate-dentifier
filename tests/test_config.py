@@ -17,7 +17,7 @@ def test_load_default_config():
     assert "record" in cfg
     assert "labels" in cfg
 
-    assert cfg["camera"]["url"] == "http://192.168.1.82:81/stream"
+    assert cfg["camera"]["url"] == "${RTSP_URL}"
     assert cfg["model"]["input_size"] == 150
     assert cfg["inference"]["frame_skip"] == 5
     assert cfg["labels"]["time"] == ["Day", "Evening", "Night"]

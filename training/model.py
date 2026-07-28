@@ -7,9 +7,8 @@ from tensorflow.keras.layers import (
 from tensorflow.keras.applications import MobileNetV2
 from tensorflow.keras.optimizers import Adam
 
-IMG_SIZE = 150
-TIME_LABELS = ["day", "evening", "night"]
-WEATHER_LABELS = ["clear", "cloudy", "partly_cloudy"]
+from constants import IMG_SIZE, TIME_LABELS, WEATHER_LABELS
+
 NUM_TIME = len(TIME_LABELS)
 NUM_WEATHER = len(WEATHER_LABELS)
 

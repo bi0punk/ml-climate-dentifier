@@ -1,5 +1,5 @@
 camera:
-  url: "rtsp://peww:ua3epk@192.168.1.21:554/user=peww_password=z9cnNBh8_channel=0_stream=0&onvif=0.sdp?real_stream"
+  url: "${RTSP_URL}"  # set RTSP_URL env var: rtsp://user:pass@host:port/path
   width: 640
   height: 480
   fps: 30

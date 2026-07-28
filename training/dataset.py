@@ -4,23 +4,9 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator, img_to_arra
 from tensorflow.keras.utils import Sequence
 from sklearn.model_selection import train_test_split
 
+from constants import IMG_SIZE, TIME_DIR_MAP, TIME_LABELS, WEATHER_DIR_MAP, WEATHER_LABELS
+
 RAW_DIR = "dataset"
-TIME_LABELS = ["day", "evening", "night"]
-WEATHER_LABELS = ["clear", "cloudy", "partly_cloudy"]
-
-TIME_DIR_MAP = {
-    "day": "day",
-    "evening": "evening",
-    "night": "night (Nightvision)",
-}
-
-WEATHER_DIR_MAP = {
-    "clear": "clear",
-    "cloudy": "cloudy",
-    "partly_cloudy": "partly_cloudy",
-}
-
-IMG_SIZE = 150
 
 
 def onehot(idx, size):
@@ -125,7 +111,9 @@ class DualDataGenerator(Sequence):
         if self.augment:
             X = self.datagen.flow(X, shuffle=False, batch_size=batch_size)[0]
 
-        return X, {"time": y_time, "weather": y_weather}
+        return (X,
+                {"time": y_time, "weather": y_weather},
+                {"time": w_time, "weather": w_weather})
 
     def on_epoch_end(self):
         np.random.shuffle(self.indices)

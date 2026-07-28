@@ -3,24 +3,14 @@ import shutil
 import argparse
 from collections import defaultdict
 import json
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from constants import TIME_DIR_MAP, TIME_LABELS, WEATHER_DIR_MAP, WEATHER_LABELS
 
 RAW_DIR = "dataset"
 PROCESSED_DIR = "data/processed"
-
-TIME_LABELS = ["day", "evening", "night"]
-WEATHER_LABELS = ["clear", "cloudy", "partly_cloudy"]
-
-TIME_DIR_MAP = {
-    "day": "day",
-    "evening": "evening",
-    "night": "night (Nightvision)",
-}
-
-WEATHER_DIR_MAP = {
-    "clear": "clear",
-    "cloudy": "cloudy",
-    "partly_cloudy": "partly_cloudy",
-}
 
 
 def analyze_dataset(raw_dir):

@@ -7,13 +7,32 @@ name = "ml-climate-dentifier"
 version = "2.0.0"
 description = "IP Camera Weather and Time Classifier using CNN"
 requires-python = ">=3.9"
-dependencies = []
+dependencies = [
+    "numpy",
+    "opencv-python",
+    "tensorflow>=2.20",
+    "matplotlib",
+    "scikit-learn",
+    "python-dotenv",
+    "pyyaml",
+    "seaborn",
+    "Pillow",
+]
 
 [project.optional-dependencies]
 dev = [
     "pytest",
     "pytest-cov",
+    "ruff>=0.6",
 ]
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+ignore = ["E501"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

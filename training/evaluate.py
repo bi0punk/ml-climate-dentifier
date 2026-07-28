@@ -3,8 +3,7 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix, classification_report
 import seaborn as sns
 
-TIME_LABELS = ["day", "evening", "night"]
-WEATHER_LABELS = ["clear", "cloudy", "partly_cloudy"]
+from constants import TIME_LABELS, WEATHER_LABELS
 
 
 def plot_training_history(history, save_path=None):
