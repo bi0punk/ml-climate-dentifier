@@ -1,9 +1,9 @@
-numpy
-opencv-python
+numpy==2.0.2
+opencv-python==4.10.0.84
 tensorflow>=2.20
-matplotlib
-scikit-learn
-python-dotenv
-pyyaml
-seaborn
-Pillow
+matplotlib==3.9.2
+scikit-learn==1.5.2
+python-dotenv==1.1.1
+pyyaml==6.0.2
+seaborn==0.13.2
+Pillow==11.1.0
