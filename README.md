@@ -120,13 +120,17 @@ ml-climate-dentifier/
 ├── app.py                      # Entry point: clasificación en tiempo real
 ├── config.yaml                 # Configuración centralizada (YAML)
 ├── constants.py
+├── common/                     # Helpers compartidos (training + inference + scripts)
+│   ├── __init__.py
+│   ├── config.py               # Carga YAML + overrides de .env
+│   └── data.py                 # Labels, iteración de imágenes, preprocesado
 ├── requirements.txt            # Dependencias Python
-├── pyproject.toml              # Metadata del proyecto + pytest config
+├── pyproject.toml              # Metadata del proyecto + pytest/ruff/mypy/vulture config
 ├── Dockerfile                  # Imagen Docker lista para deploy (python:3.10-slim)
 ├── Makefile                    # Comandos comunes (run, train, test, docker)
 ├── inference/                  # Paquete de inferencia en vivo
 │   ├── __init__.py
-│   ├── config.py               # Carga YAML + overrides de .env
+│   ├── config.py               # Re-exporta common.config
 │   ├── predictor.py            # Carga del modelo, predict, smoothing temporal
 │   ├── streamer.py             # Captura de cámara con reconexión exponencial
 │   └── visualizer.py           # Overlay OpenCV, display, grabación
@@ -142,10 +146,13 @@ ml-climate-dentifier/
 │   └── capture.sh              # Captura periódica de frames via ffmpeg
 ├── tests/                      # Suite de tests (pytest)
 │   ├── __init__.py
+│   ├── conftest.py             # sys.path para importar scripts/
+│   ├── test_common.py          # Tests de common/ (labels, imágenes, config)
 │   ├── test_config.py          # Tests del cargador de configuración
 │   ├── test_dataset.py         # Tests del DualDataGenerator
 │   ├── test_model.py           # Tests de la arquitectura (shapes, outputs)
-│   └── test_predictor.py       # Tests del predictor y smoothing
+│   ├── test_predictor.py       # Tests del predictor y smoothing
+│   └── test_scripts.py         # Tests de scripts (build_dataset, label_captures)
 ├── models/                     # Modelos .h5 entrenados (gitignored)
 ├── dataset/                    # Dataset RAW (gitignored)
 ├── captures/                   # Capturas periódicas (gitignored)
@@ -381,6 +388,23 @@ pip install pytest-cov
 python -m pytest tests/ --cov=inference --cov=training
 ```
 
+## Calidad / QA
+
+```bash
+# Lint estático
+ruff check .
+
+# Type checking
+mypy .
+
+# Seguridad / dead code
+bandit -r training inference scripts common app.py
+vulture training inference scripts common app.py
+
+# Complejidad
+radon cc training inference scripts -s
+```
+
 Tests incluidos:
 
 | Archivo | Lo que prueba |
@@ -389,11 +413,14 @@ Tests incluidos:
 | `test_predictor.py` | Inicialización del predictor, lógica de smoothing |
 | `test_dataset.py` | one-hot encoding, carga del dataset, shapes del generador |
 | `test_model.py` | Creación de modelo CNN/MobileNetV2, shapes de salida, sumas de softmax |
+| `test_common.py` | Helpers compartidos (labels, iteración de imágenes, preprocesado) |
+| `test_scripts.py` | build_dataset y label_captures con fixtures |
 
 CI — GitHub Actions (`.github/workflows/ci.yml`) sobre Python 3.11, disparado en push/PR a `main`/`master`:
 
 - `ruff check .`.
-- Tests ligeros (`pytest tests/ -q` ignorando los tests que requieren TensorFlow).
+- `mypy .`, `bandit` y `vulture`.
+- Suite completa de tests (`pytest tests/ -q`).
 
 ## Dataset
 
