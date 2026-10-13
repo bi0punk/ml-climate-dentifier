@@ -1,3 +1,4 @@
+import numpy as np
 import pytest
 
 from inference.predictor import Predictor
@@ -24,43 +25,87 @@ def test_predictor_init_fails_without_model():
         Predictor(SAMPLE_CONFIG)
 
 
+def _make_predictor():
+    p = Predictor.__new__(Predictor)
+    p.input_size = 150
+    p.time_labels = ["Day", "Evening", "Night"]
+    p.weather_labels = ["Clear", "Cloudy", "Partly Cloudy"]
+    p.smoothing_window = 3
+    p.confidence_threshold = 0.0
+    p.time_history = []
+    p.weather_history = []
+    return p
+
+
+def _frame():
+    return np.zeros((480, 640, 3), dtype=np.uint8)
+
+
 def test_smoothing_works():
-    """Verify smoothing logic with a mock predictor instance."""
-    from inference.predictor import Predictor
+    """Verifica el suavizado temporal en la ventana de moda."""
+    p = _make_predictor()
 
-    class MockPredictor(Predictor):
-        def __init__(self):
-            self.time_labels = ["Day", "Evening", "Night"]
-            self.weather_labels = ["Clear", "Cloudy", "Partly Cloudy"]
-            self.smoothing_window = 3
-            self.time_history = []
-            self.weather_history = []
+    class FakeModel:
+        def predict(self, x, verbose=0):
+            return (np.array([[0.9, 0.05, 0.05]]), np.array([[0.1, 0.8, 0.1]]))
 
-        def predict(self, frame):
-            self.time_history.append(0)
-            self.weather_history.append(1)
-            if len(self.time_history) > self.smoothing_window:
-                self.time_history.pop(0)
-                self.weather_history.pop(0)
-            smoothed_time = max(set(self.time_history), key=self.time_history.count)
-            smoothed_weather = max(set(self.weather_history), key=self.weather_history.count)
-            return {
-                "time_label": self.time_labels[smoothed_time],
-                "time_confidence": 95.0,
-                "weather_label": self.weather_labels[smoothed_weather],
-                "weather_confidence": 80.0,
-            }
+    p.model = FakeModel()
+    p.model_type = "dual_head"
 
-    p = MockPredictor()
-    r1 = p.predict(None)
+    r1 = p.predict(_frame())
     assert r1["time_label"] == "Day"
     assert r1["weather_label"] == "Cloudy"
-    assert r1["time_confidence"] == 95.0
-    assert r1["weather_confidence"] == 80.0
+    assert r1["time_confidence"] == pytest.approx(90.0)
+    assert r1["weather_confidence"] == pytest.approx(80.0)
 
-    # After smoothing_window predictions, mode should stabilize
-    p.time_history = [0, 0, 1]
-    p.weather_history = [2, 2, 1]
-    r2 = p.predict(None)
-    assert r2["time_label"] == "Day"
-    assert r2["weather_label"] == "Partly Cloudy"
+    # La ventana de suavizado no debe superar smoothing_window
+    assert len(p.time_history) == 1
+    assert len(p.weather_history) == 1
+
+
+def test_smoothing_window_bounded():
+    """Tras más predicciones que la ventana, el historial queda acotado."""
+    p = _make_predictor()
+
+    class FakeModel:
+        def predict(self, x, verbose=0):
+            return (np.array([[0.9, 0.05, 0.05]]), np.array([[0.1, 0.1, 0.8]]))
+
+    p.model = FakeModel()
+    p.model_type = "dual_head"
+
+    for _ in range(10):
+        p.predict(_frame())
+
+    assert len(p.time_history) == p.smoothing_window
+    assert len(p.weather_history) == p.smoothing_window
+    # la moda con mayoría "Partly Cloudy" debe estabilizarse
+    assert p.predict(_frame())["weather_label"] == "Partly Cloudy"
+
+
+def test_single_6class_output_slices():
+    """Modelo single_6class: primeros 3 = time, últimos 3 = weather."""
+    p = _make_predictor()
+
+    class FakeModel:
+        def predict(self, x, verbose=0):
+            return np.array([[0.1, 0.8, 0.1, 0.2, 0.2, 0.6]])
+
+    p.model = FakeModel()
+    p.model_type = "single_6class"
+
+    r = p.predict(_frame())
+    assert r["time_label"] == "Evening"
+    assert r["weather_label"] == "Partly Cloudy"
+
+
+def test_preprocess_normalizes_to_01():
+    """preprocess debe producir un batch [0,1] normalizado."""
+    frame = np.full((480, 640, 3), 255, dtype=np.uint8)
+    p = _make_predictor()
+    p.input_size = 150
+    out = p.preprocess(frame)
+    assert out.shape == (1, 150, 150, 3)
+    assert out.dtype == np.float32
+    assert float(out.max()) <= 1.0
+    assert float(out.min()) >= 0.0
