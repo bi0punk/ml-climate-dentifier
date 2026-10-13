@@ -40,6 +40,14 @@ ignore_missing_imports = true
 check_untyped_defs = true
 warn_unused_ignores = true
 
+[tool.vulture]
+min_confidence = 60
+ignore_names = [
+    "confidence_threshold",
+    "on_epoch_end",
+    "trainable",
+]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]

@@ -8,14 +8,15 @@ Herramientas: `vulture`, `bandit`, `radon`, `ruff`, `mypy`.
 
 | Ubicación | Hallazgo | Acción |
 |---|---|---|
-| `training/model.py:3` | Import sin usar `GlobalAveragePooling2D` | eliminar import |
-| `training/dataset.py:118` | `on_epoch_end` (fine si se usa con Keras `Sequence`) | mantener |
-| `training/evaluate.py:10,82,100` | variable `fig` sin usar | `fig, _ = ...` |
-| `scripts/build_dataset.py:18` | variable de bucle `files` sin usar | `_` |
-| `inference/predictor.py:15` | `confidence_threshold` se asigna pero no se usa | documentar/revisar |
-| `training/model.py:55` | `base.trainable = False` reportado falso (+) | mantener |
+| `training/model.py:3` | Import sin usar `GlobalAveragePooling2D` | eliminado |
+| `training/dataset.py:118` | `on_epoch_end` (protocolo Keras Sequence) | `ignore_names` en pyproject |
+| `training/evaluate.py:10,82,100` | variable `fig` sin usar | `_, ax = plt.subplots(...)` |
+| `scripts/build_dataset.py:18` | variable de bucle `files` sin usar | renombrada `_` |
+| `inference/predictor.py:15` | `confidence_threshold` (contrato config) | `ignore_names` en pyproject |
+| `training/model.py:55` | `base.trainable = False` (propiedad TF) | `ignore_names` en pyproject |
+| `common/data.py` | `list_images`, `to_batch`, `get_*_dir_map` no usados | eliminados (re-export de dir maps en `common.data`) |
 
-## bandit (training/, inference/, scripts/)
+## bandit (training/, inference/, scripts/, app.py)
 
 0 issues (severity Low/Medium/High). Sin hallazgos de seguridad pendientes.
 

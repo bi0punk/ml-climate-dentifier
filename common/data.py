@@ -11,7 +11,21 @@ import os
 
 import numpy as np
 
-from constants import IMG_SIZE, TIME_DIR_MAP, TIME_LABELS, WEATHER_DIR_MAP, WEATHER_LABELS
+from constants import (
+    IMG_SIZE as IMG_SIZE,
+)
+from constants import (
+    TIME_DIR_MAP as TIME_DIR_MAP,
+)
+from constants import (
+    TIME_LABELS as TIME_LABELS,
+)
+from constants import (
+    WEATHER_DIR_MAP as WEATHER_DIR_MAP,
+)
+from constants import (
+    WEATHER_LABELS as WEATHER_LABELS,
+)
 
 IMAGE_EXTENSIONS = (".jpg", ".jpeg", ".png")
 
@@ -34,11 +48,6 @@ def iter_images(path, limit=None):
         count += 1
         if limit is not None and count >= limit:
             return
-
-
-def list_images(path, limit=None):
-    """Devuelve rutas de imágenes válidas dentro de un directorio."""
-    return list(iter_images(path, limit=limit))
 
 
 def image_count(path):
@@ -69,16 +78,6 @@ def decode_labels(config=None):
     }
 
 
-def get_time_dir_map(config=None):
-    """Mapeo time-label -> nombre de directorio (base en constants)."""
-    return TIME_DIR_MAP
-
-
-def get_weather_dir_map(config=None):
-    """Mapeo weather-label -> nombre de directorio (base en constants)."""
-    return WEATHER_DIR_MAP
-
-
 def preprocess_image(path, img_size=IMG_SIZE):
     """Carga una imagen desde disco, la reescala y normaliza a [0, 1].
 
@@ -100,11 +99,6 @@ def preprocess_frame(frame, img_size=IMG_SIZE):
 
     img = cv2.resize(frame, (img_size, img_size))
     return img_to_array(img) / 255.0
-
-
-def to_batch(x):
-    """Añade dimensión batch a un tensor preprocesado."""
-    return np.expand_dims(x, axis=0)
 
 
 def onehot(idx, size):

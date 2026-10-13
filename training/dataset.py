@@ -115,7 +115,7 @@ class DualDataGenerator(Sequence):
                 {"time": y_time, "weather": y_weather},
                 {"time": w_time, "weather": w_weather})
 
-    def on_epoch_end(self):
+    def on_epoch_end(self):  # vulture: ignore
         np.random.shuffle(self.indices)
 
 

@@ -7,7 +7,7 @@ from common.data import TIME_LABELS, WEATHER_LABELS
 
 
 def plot_training_history(history, save_path=None):
-    fig, axes = plt.subplots(2, 2, figsize=(12, 10))
+    _, axes = plt.subplots(2, 2, figsize=(12, 10))
 
     axes[0, 0].plot(history.history["time_accuracy"], label="Train")
     if "val_time_accuracy" in history.history:
@@ -79,7 +79,7 @@ def evaluate_model(model, test_gen):
         print(classification_report(y_true_time, y_pred_time, target_names=TIME_LABELS, zero_division=0))
 
         cm = confusion_matrix(y_true_time, y_pred_time)
-        fig, ax = plt.subplots(figsize=(6, 5))
+        _, ax = plt.subplots(figsize=(6, 5))
         sns.heatmap(cm, annot=True, fmt="d", xticklabels=TIME_LABELS, yticklabels=TIME_LABELS, ax=ax)
         ax.set_title("Time Confusion Matrix")
         ax.set_ylabel("True")
@@ -97,7 +97,7 @@ def evaluate_model(model, test_gen):
         print(classification_report(y_true_weather, y_pred_weather, target_names=WEATHER_LABELS, zero_division=0))
 
         cm = confusion_matrix(y_true_weather, y_pred_weather)
-        fig, ax = plt.subplots(figsize=(6, 5))
+        _, ax = plt.subplots(figsize=(6, 5))
         sns.heatmap(cm, annot=True, fmt="d", xticklabels=WEATHER_LABELS, yticklabels=WEATHER_LABELS, ax=ax)
         ax.set_title("Weather Confusion Matrix")
         ax.set_ylabel("True")

@@ -57,7 +57,7 @@ def build_mobilenetv2(input_shape=(IMG_SIZE, IMG_SIZE, 3)):
         weights="imagenet",
         pooling="avg",
     )
-    base.trainable = False
+    base.trainable = False  # vulture: ignore
 
     inputs = Input(shape=input_shape)
     x = base(inputs, training=False)

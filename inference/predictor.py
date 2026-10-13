@@ -13,7 +13,7 @@ class Predictor:
         self.time_labels = labels["time"]
         self.weather_labels = labels["weather"]
         self.smoothing_window = config["inference"]["smoothing_window"]
-        self.confidence_threshold = config["inference"]["confidence_threshold"]
+        self.confidence_threshold = config["inference"]["confidence_threshold"]  # vulture: ignore
         self.model_type = config["model"].get("type", "single_6class")
 
         self.time_history = []
