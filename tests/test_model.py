@@ -1,7 +1,7 @@
 import pytest
 
 try:
-    from training.model import get_model, compile_model, IMG_SIZE, NUM_TIME, NUM_WEATHER
+    from training.model import IMG_SIZE, NUM_TIME, NUM_WEATHER, compile_model, get_model
     HAS_TF = True
 except ImportError:
     HAS_TF = False

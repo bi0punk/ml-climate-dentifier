@@ -1,11 +1,12 @@
+import argparse
 import logging
 import sys
-import argparse
+
 import cv2
 
 from inference.config import load_config
-from inference.streamer import Streamer
 from inference.predictor import Predictor
+from inference.streamer import Streamer
 from inference.visualizer import Visualizer
 
 logging.basicConfig(

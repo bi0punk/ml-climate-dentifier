@@ -1,7 +1,7 @@
-import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.metrics import confusion_matrix, classification_report
+import numpy as np
 import seaborn as sns
+from sklearn.metrics import classification_report, confusion_matrix
 
 from constants import TIME_LABELS, WEATHER_LABELS
 

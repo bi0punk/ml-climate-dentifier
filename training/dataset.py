@@ -1,8 +1,9 @@
 import os
+
 import numpy as np
+from sklearn.model_selection import train_test_split
 from tensorflow.keras.preprocessing.image import ImageDataGenerator, img_to_array, load_img
 from tensorflow.keras.utils import Sequence
-from sklearn.model_selection import train_test_split
 
 from constants import IMG_SIZE, TIME_DIR_MAP, TIME_LABELS, WEATHER_DIR_MAP, WEATHER_LABELS
 

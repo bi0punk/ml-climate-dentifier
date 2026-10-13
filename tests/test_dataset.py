@@ -1,14 +1,15 @@
 import os
 import tempfile
+
 import numpy as np
 from PIL import Image
 
 from training.dataset import (
-    load_dataset,
-    DualDataGenerator,
-    onehot,
     TIME_LABELS,
     WEATHER_LABELS,
+    DualDataGenerator,
+    load_dataset,
+    onehot,
 )
 
 

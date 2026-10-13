@@ -1,13 +1,13 @@
-import os
 import argparse
-from datetime import datetime
 import json
+import os
+from datetime import datetime
 
-from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLROnPlateau, CSVLogger
+from tensorflow.keras.callbacks import CSVLogger, EarlyStopping, ModelCheckpoint, ReduceLROnPlateau
 
-from training.model import get_model, compile_model, IMG_SIZE
-from training.dataset import get_train_val_generators, create_splits
-from training.evaluate import plot_training_history, evaluate_model
+from training.dataset import create_splits, get_train_val_generators
+from training.evaluate import evaluate_model, plot_training_history
+from training.model import IMG_SIZE, compile_model, get_model
 
 
 def train(args):

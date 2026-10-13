@@ -1,10 +1,15 @@
 import tensorflow as tf
 from tensorflow.keras import Model
-from tensorflow.keras.layers import (
-    Input, Conv2D, MaxPooling2D, Flatten, Dense, Dropout,
-    BatchNormalization, GlobalAveragePooling2D
-)
 from tensorflow.keras.applications import MobileNetV2
+from tensorflow.keras.layers import (
+    BatchNormalization,
+    Conv2D,
+    Dense,
+    Dropout,
+    Flatten,
+    Input,
+    MaxPooling2D,
+)
 from tensorflow.keras.optimizers import Adam
 
 from constants import IMG_SIZE, TIME_LABELS, WEATHER_LABELS

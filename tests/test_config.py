@@ -1,7 +1,9 @@
 import os
 import tempfile
+
 import yaml
-from inference.config import load_config, DEFAULT_CONFIG_PATH
+
+from inference.config import DEFAULT_CONFIG_PATH, load_config
 
 
 def test_default_config_exists():

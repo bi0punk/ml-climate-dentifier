@@ -1,16 +1,14 @@
+import argparse
+import json
 import os
 import shutil
-import argparse
 from datetime import datetime
-import json
 
 CAPTURES_DIR = "captures"
 OUTPUT_DIR = "data/captures_labeled"
 
 def infer_time_of_day(hour):
-    if 6 <= hour < 12:
-        return "day"
-    elif 12 <= hour < 18:
+    if 6 <= hour < 12 or 12 <= hour < 18:
         return "day"
     elif 18 <= hour < 21:
         return "evening"

@@ -1,9 +1,10 @@
+import argparse
+import json
 import os
 import shutil
-import argparse
-from collections import defaultdict
-import json
 import sys
+from collections import defaultdict
+from contextlib import suppress
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -12,13 +13,15 @@ from constants import TIME_DIR_MAP, TIME_LABELS, WEATHER_DIR_MAP, WEATHER_LABELS
 RAW_DIR = "dataset"
 PROCESSED_DIR = "data/processed"
 
+IMAGE_EXTENSIONS = (".jpg", ".jpeg", ".png")
+
 
 def analyze_dataset(raw_dir):
     stats = {}
-    for root, dirs, files in os.walk(raw_dir):
+    for root, dirs, _ in os.walk(raw_dir):
         for d in dirs:
             path = os.path.join(root, d)
-            count = len([f for f in os.listdir(path) if f.lower().endswith((".jpg", ".jpeg", ".png"))])
+            count = len([f for f in os.listdir(path) if f.lower().endswith(IMAGE_EXTENSIONS)])
             stats[d] = count
     return stats
 
@@ -34,7 +37,7 @@ def build_combined_dataset(raw_dir, output_dir, symlink=True):
         if not os.path.isdir(time_path):
             continue
         for fname in os.listdir(time_path):
-            if not fname.lower().endswith((".jpg", ".jpeg", ".png")):
+            if not fname.lower().endswith(IMAGE_EXTENSIONS):
                 continue
             for weather_label in WEATHER_LABELS:
                 combined[f"{time_label}_{weather_label}"].append(
@@ -46,7 +49,7 @@ def build_combined_dataset(raw_dir, output_dir, symlink=True):
         if not os.path.isdir(weather_path):
             continue
         for fname in os.listdir(weather_path):
-            if not fname.lower().endswith((".jpg", ".jpeg", ".png")):
+            if not fname.lower().endswith(IMAGE_EXTENSIONS):
                 continue
             for time_label in TIME_LABELS:
                 combined[f"{time_label}_{weather_label}"].append(
@@ -56,17 +59,15 @@ def build_combined_dataset(raw_dir, output_dir, symlink=True):
     for class_name, file_paths in combined.items():
         class_dir = os.path.join(output_dir, class_name)
         os.makedirs(class_dir, exist_ok=True)
-        added = set()
+        added: set[str] = set()
         for src_path in file_paths:
             base = os.path.basename(src_path)
             dest = os.path.join(class_dir, base)
             if base in added:
                 name, ext = os.path.splitext(base)
                 dest = os.path.join(class_dir, f"{name}_{len(added)}{ext}")
-            try:
+            with suppress(FileExistsError):
                 link_fn(src_path, dest)
-            except FileExistsError:
-                pass
             added.add(os.path.basename(dest))
 
     return {k: len(v) for k, v in combined.items()}

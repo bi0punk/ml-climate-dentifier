@@ -1,8 +1,6 @@
-import numpy as np
 import pytest
 
 from inference.predictor import Predictor
-
 
 SAMPLE_CONFIG = {
     "model": {
@@ -22,7 +20,7 @@ SAMPLE_CONFIG = {
 
 
 def test_predictor_init_fails_without_model():
-    with pytest.raises(Exception):
+    with pytest.raises(FileNotFoundError):
         Predictor(SAMPLE_CONFIG)
 
 
