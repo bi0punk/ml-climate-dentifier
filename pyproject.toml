@@ -24,6 +24,10 @@ dev = [
     "pytest",
     "pytest-cov",
     "ruff>=0.6",
+    "mypy",
+    "bandit",
+    "vulture",
+    "radon",
 ]
 
 [tool.ruff]
