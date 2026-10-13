@@ -20,20 +20,32 @@ def is_image_file(fname):
     return fname.lower().endswith(IMAGE_EXTENSIONS)
 
 
-def list_images(path):
+def iter_images(path, limit=None):
+    """Itera rutas de imágenes válidas en un directorio.
+
+    Lee el árbol de forma perezosa: si se indica ``limit``, detiene el
+    recorrido al alcanzar ese número (evita cargar directorios enormes).
+    """
+    count = 0
+    for fname in os.listdir(path):
+        if not is_image_file(fname):
+            continue
+        yield os.path.join(path, fname)
+        count += 1
+        if limit is not None and count >= limit:
+            return
+
+
+def list_images(path, limit=None):
     """Devuelve rutas de imágenes válidas dentro de un directorio."""
-    return [
-        os.path.join(path, fname)
-        for fname in os.listdir(path)
-        if is_image_file(fname)
-    ]
+    return list(iter_images(path, limit=limit))
 
 
 def image_count(path):
     """Cuenta imágenes dentro de un directorio (0 si no existe)."""
     if not os.path.isdir(path):
         return 0
-    return len(list_images(path))
+    return sum(1 for _ in iter_images(path))
 
 
 def decode_labels(config=None):

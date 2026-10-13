@@ -169,6 +169,20 @@ def test_create_splits_reproducible():
             assert np.array_equal(gen1.indices, gen2.indices)
 
 
+def test_load_dataset_limit_per_class():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        path = os.path.join(tmpdir, "day")
+        os.makedirs(path)
+        img = Image.fromarray(np.zeros((150, 150, 3), dtype=np.uint8))
+        for i in range(4):
+            img.save(os.path.join(path, f"img{i}.jpg"))
+
+        full = len(_load(tmpdir)[0])
+        limited = len(load_dataset(tmpdir, limit=2)[0])
+        assert full == 4
+        assert limited == 2
+
+
 def test_get_train_val_generators():
     with tempfile.TemporaryDirectory() as tmpdir:
         create_dummy_dataset(tmpdir)

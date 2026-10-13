@@ -13,7 +13,8 @@ from common.data import (
     TIME_LABELS,
     WEATHER_DIR_MAP,
     WEATHER_LABELS,
-    is_image_file,
+    image_count,
+    iter_images,
 )
 
 RAW_DIR = "dataset"
@@ -25,12 +26,11 @@ def analyze_dataset(raw_dir):
     for root, dirs, _ in os.walk(raw_dir):
         for d in dirs:
             path = os.path.join(root, d)
-            count = len([f for f in os.listdir(path) if is_image_file(f)])
-            stats[d] = count
+            stats[d] = image_count(path)
     return stats
 
 
-def build_combined_dataset(raw_dir, output_dir, symlink=True):
+def build_combined_dataset(raw_dir, output_dir, symlink=True, limit=None):
     os.makedirs(output_dir, exist_ok=True)
     link_fn = os.symlink if symlink else shutil.copy2
 
@@ -40,25 +40,17 @@ def build_combined_dataset(raw_dir, output_dir, symlink=True):
         time_path = os.path.join(raw_dir, time_dir)
         if not os.path.isdir(time_path):
             continue
-        for fname in os.listdir(time_path):
-            if not is_image_file(fname):
-                continue
+        for image_path in iter_images(time_path, limit=limit):
             for weather_label in WEATHER_LABELS:
-                combined[f"{time_label}_{weather_label}"].append(
-                    os.path.join(time_path, fname)
-                )
+                combined[f"{time_label}_{weather_label}"].append(image_path)
 
     for weather_label, weather_dir in WEATHER_DIR_MAP.items():
         weather_path = os.path.join(raw_dir, weather_dir)
         if not os.path.isdir(weather_path):
             continue
-        for fname in os.listdir(weather_path):
-            if not is_image_file(fname):
-                continue
+        for image_path in iter_images(weather_path, limit=limit):
             for time_label in TIME_LABELS:
-                combined[f"{time_label}_{weather_label}"].append(
-                    os.path.join(weather_path, fname)
-                )
+                combined[f"{time_label}_{weather_label}"].append(image_path)
 
     for class_name, file_paths in combined.items():
         class_dir = os.path.join(output_dir, class_name)
@@ -83,6 +75,7 @@ def main():
     parser.add_argument("--output-dir", default=PROCESSED_DIR)
     parser.add_argument("--copy", action="store_true", help="Copy instead of symlink")
     parser.add_argument("--analyze", action="store_true", help="Only analyze, don't build")
+    parser.add_argument("--limit", type=int, default=None, help="Max images per class (dev/testing)")
     args = parser.parse_args()
 
     stats = analyze_dataset(args.raw_dir)
@@ -98,7 +91,7 @@ def main():
         return
 
     print("\nBuilding combined dataset...")
-    class_counts = build_combined_dataset(args.raw_dir, args.output_dir, symlink=not args.copy)
+    class_counts = build_combined_dataset(args.raw_dir, args.output_dir, symlink=not args.copy, limit=args.limit)
 
     print("\n" + "=" * 50)
     print("Combined Dataset Classes")

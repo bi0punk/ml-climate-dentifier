@@ -11,7 +11,7 @@ from common.data import (
     TIME_LABELS,
     WEATHER_DIR_MAP,
     WEATHER_LABELS,
-    is_image_file,
+    iter_images,
     onehot,
     preprocess_image,
 )
@@ -19,12 +19,12 @@ from common.data import (
 RAW_DIR = "dataset"
 
 
-def load_dataset(raw_dir=RAW_DIR):
+def load_dataset(raw_dir=RAW_DIR, limit=None):
     """Recorre el dataset raw (directorios por clase) y genera tensores de
     labels OneHot + máscaras de "known" para el dual-head.
 
-    Cada imagen aporta solo un tipo de etiqueta conocida (tiempo O clima),
-    el otro se deja en ceros junto con su máscara ``known=0``.
+    ``limit`` (opcional) acota el número de imágenes leídas por clase para
+    inspecciones o pruebas con datasets grandes.
     """
     images = []
     time_labels = []
@@ -37,10 +37,8 @@ def load_dataset(raw_dir=RAW_DIR):
         if not os.path.isdir(path):
             continue
         time_idx = TIME_LABELS.index(time_label)
-        for fname in os.listdir(path):
-            if not is_image_file(fname):
-                continue
-            images.append(os.path.join(path, fname))
+        for image_path in iter_images(path, limit=limit):
+            images.append(image_path)
             time_labels.append(onehot(time_idx, len(TIME_LABELS)))
             weather_labels.append(np.zeros(len(WEATHER_LABELS), dtype=np.float32))
             time_known.append(1.0)
@@ -51,10 +49,8 @@ def load_dataset(raw_dir=RAW_DIR):
         if not os.path.isdir(path):
             continue
         weather_idx = WEATHER_LABELS.index(weather_label)
-        for fname in os.listdir(path):
-            if not is_image_file(fname):
-                continue
-            images.append(os.path.join(path, fname))
+        for image_path in iter_images(path, limit=limit):
+            images.append(image_path)
             time_labels.append(np.zeros(len(TIME_LABELS), dtype=np.float32))
             weather_labels.append(onehot(weather_idx, len(WEATHER_LABELS)))
             time_known.append(0.0)
@@ -136,8 +132,8 @@ def _make_generator(idx_list, images, time_labels, weather_labels, time_known, w
     )
 
 
-def create_splits(raw_dir=RAW_DIR, test_size=0.15, val_size=0.15, random_state=42, batch_size=32):
-    images, time_labels, weather_labels, time_known, weather_known = load_dataset(raw_dir)
+def create_splits(raw_dir=RAW_DIR, test_size=0.15, val_size=0.15, random_state=42, batch_size=32, limit=None):
+    images, time_labels, weather_labels, time_known, weather_known = load_dataset(raw_dir, limit=limit)
 
     idx = np.arange(len(images))
     train_idx, test_idx = train_test_split(idx, test_size=test_size, random_state=random_state)
@@ -153,6 +149,6 @@ def create_splits(raw_dir=RAW_DIR, test_size=0.15, val_size=0.15, random_state=4
     )
 
 
-def get_train_val_generators(raw_dir=RAW_DIR, batch_size=32):
-    train_gen, val_gen, _ = create_splits(raw_dir, batch_size=batch_size)
+def get_train_val_generators(raw_dir=RAW_DIR, batch_size=32, limit=None):
+    train_gen, val_gen, _ = create_splits(raw_dir, batch_size=batch_size, limit=limit)
     return train_gen, val_gen

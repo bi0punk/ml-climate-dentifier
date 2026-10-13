@@ -59,6 +59,8 @@ def train(args):
         epochs=args.epochs,
         validation_data=val_gen,
         callbacks=callbacks,
+        workers=args.workers,
+        use_multiprocessing=args.multiprocessing,
         verbose=1,
     )
 
@@ -90,6 +92,8 @@ def main():
     parser.add_argument("--learning-rate", type=float, default=0.001, help="Initial learning rate")
     parser.add_argument("--patience", type=int, default=7, help="Early stopping patience")
     parser.add_argument("--evaluate", action="store_true", help="Run evaluation on test set after training")
+    parser.add_argument("--workers", type=int, default=1, help="Num worker threads for the DataLoader")
+    parser.add_argument("--multiprocessing", action="store_true", help="Use multiprocessing for the DataLoader")
     args = parser.parse_args()
 
     train(args)

@@ -44,6 +44,22 @@ def test_analyze_dataset_ignores_non_images():
         assert stats["day"] == 1
 
 
+def test_build_combined_dataset_limit():
+    with tempfile.TemporaryDirectory() as tmp:
+        raw = os.path.join(tmp, "raw")
+        out = os.path.join(tmp, "out")
+        day_path = os.path.join(raw, "day")
+        os.makedirs(day_path, exist_ok=True)
+        for i in range(5):
+            with open(os.path.join(day_path, f"img{i}.jpg"), "wb") as f:
+                f.write(b"x")
+
+        counts = build_dataset.build_combined_dataset(raw, out, symlink=False, limit=2)
+        # solo 2 de 5 imágenes de day se propagan a cada clase de clima
+        assert counts["day_clear"] == 2
+        assert all(v == 2 for v in counts.values())
+
+
 def test_build_combined_dataset_symlink():
     with tempfile.TemporaryDirectory() as tmp:
         raw = os.path.join(tmp, "raw")
