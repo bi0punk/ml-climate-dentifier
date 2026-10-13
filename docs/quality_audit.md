@@ -38,9 +38,17 @@ Tras `ignore_missing_imports` quedan erros reales:
 - `training/dataset.py:136-138` `*split_data(...)` + kwargs duplican `batch_size`/`augment`
 - `inference/visualizer.py:17` `cv2.VideoWriter_fourcc` no tipado
 
-## Duplicación de carga de datos
+## Duplicación de carga de datos (RESUELTO)
 
 Lógica de carga CSV/metadata/decodificación de clases (config.yaml) repetida entre:
 `training/dataset.py`, `training/evaluate.py`, `training/train.py`,
 `inference/predictor.py`, `app.py`, `scripts/build_dataset.py`.
-Se extraerá a un módulo compartido (`common/`) sin cambiar comportamiento.
+
+Se extrajo a un módulo compartido `common/` sin cambiar comportamiento:
+- `common/config.py` — carga centralizada de `config.yaml` + overrides de .env
+  (antes en `inference/config.py`, ahora re-exporta).
+- `common/data.py` — decodificación de labels, extensión de imágenes, preproceso
+  (`preprocess_image`, `preprocess_frame`), onehot, mapas de directorios.
+- `training/dataset.py`, `training/evaluate.py`, `training/model.py`,
+  `inference/predictor.py`, `app.py` y `scripts/build_dataset.py` importan
+  desde `common` en vez de duplicar lógica.

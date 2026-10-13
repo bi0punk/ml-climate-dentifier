@@ -8,12 +8,16 @@ from contextlib import suppress
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from constants import TIME_DIR_MAP, TIME_LABELS, WEATHER_DIR_MAP, WEATHER_LABELS
+from common.data import (
+    TIME_DIR_MAP,
+    TIME_LABELS,
+    WEATHER_DIR_MAP,
+    WEATHER_LABELS,
+    is_image_file,
+)
 
 RAW_DIR = "dataset"
 PROCESSED_DIR = "data/processed"
-
-IMAGE_EXTENSIONS = (".jpg", ".jpeg", ".png")
 
 
 def analyze_dataset(raw_dir):
@@ -21,7 +25,7 @@ def analyze_dataset(raw_dir):
     for root, dirs, _ in os.walk(raw_dir):
         for d in dirs:
             path = os.path.join(root, d)
-            count = len([f for f in os.listdir(path) if f.lower().endswith(IMAGE_EXTENSIONS)])
+            count = len([f for f in os.listdir(path) if is_image_file(f)])
             stats[d] = count
     return stats
 
@@ -37,7 +41,7 @@ def build_combined_dataset(raw_dir, output_dir, symlink=True):
         if not os.path.isdir(time_path):
             continue
         for fname in os.listdir(time_path):
-            if not fname.lower().endswith(IMAGE_EXTENSIONS):
+            if not is_image_file(fname):
                 continue
             for weather_label in WEATHER_LABELS:
                 combined[f"{time_label}_{weather_label}"].append(
@@ -49,7 +53,7 @@ def build_combined_dataset(raw_dir, output_dir, symlink=True):
         if not os.path.isdir(weather_path):
             continue
         for fname in os.listdir(weather_path):
-            if not fname.lower().endswith(IMAGE_EXTENSIONS):
+            if not is_image_file(fname):
                 continue
             for time_label in TIME_LABELS:
                 combined[f"{time_label}_{weather_label}"].append(

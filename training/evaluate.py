@@ -3,7 +3,7 @@ import numpy as np
 import seaborn as sns
 from sklearn.metrics import classification_report, confusion_matrix
 
-from constants import TIME_LABELS, WEATHER_LABELS
+from common.data import TIME_LABELS, WEATHER_LABELS
 
 
 def plot_training_history(history, save_path=None):

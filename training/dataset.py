@@ -2,21 +2,30 @@ import os
 
 import numpy as np
 from sklearn.model_selection import train_test_split
-from tensorflow.keras.preprocessing.image import ImageDataGenerator, img_to_array, load_img
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.utils import Sequence
 
-from constants import IMG_SIZE, TIME_DIR_MAP, TIME_LABELS, WEATHER_DIR_MAP, WEATHER_LABELS
+from common.data import (
+    IMG_SIZE,
+    TIME_DIR_MAP,
+    TIME_LABELS,
+    WEATHER_DIR_MAP,
+    WEATHER_LABELS,
+    is_image_file,
+    onehot,
+    preprocess_image,
+)
 
 RAW_DIR = "dataset"
 
 
-def onehot(idx, size):
-    v = np.zeros(size, dtype=np.float32)
-    v[idx] = 1.0
-    return v
-
-
 def load_dataset(raw_dir=RAW_DIR):
+    """Recorre el dataset raw (directorios por clase) y genera tensores de
+    labels OneHot + máscaras de "known" para el dual-head.
+
+    Cada imagen aporta solo un tipo de etiqueta conocida (tiempo O clima),
+    el otro se deja en ceros junto con su máscara ``known=0``.
+    """
     images = []
     time_labels = []
     weather_labels = []
@@ -29,7 +38,7 @@ def load_dataset(raw_dir=RAW_DIR):
             continue
         time_idx = TIME_LABELS.index(time_label)
         for fname in os.listdir(path):
-            if not fname.lower().endswith((".jpg", ".jpeg", ".png")):
+            if not is_image_file(fname):
                 continue
             images.append(os.path.join(path, fname))
             time_labels.append(onehot(time_idx, len(TIME_LABELS)))
@@ -43,7 +52,7 @@ def load_dataset(raw_dir=RAW_DIR):
             continue
         weather_idx = WEATHER_LABELS.index(weather_label)
         for fname in os.listdir(path):
-            if not fname.lower().endswith((".jpg", ".jpeg", ".png")):
+            if not is_image_file(fname):
                 continue
             images.append(os.path.join(path, fname))
             time_labels.append(np.zeros(len(TIME_LABELS), dtype=np.float32))
@@ -58,12 +67,6 @@ def load_dataset(raw_dir=RAW_DIR):
         np.array(time_known),
         np.array(weather_known),
     )
-
-
-def preprocess_image(path):
-    img = load_img(path, target_size=(IMG_SIZE, IMG_SIZE))
-    arr = img_to_array(img) / 255.0
-    return arr
 
 
 class DualDataGenerator(Sequence):
@@ -109,7 +112,7 @@ class DualDataGenerator(Sequence):
             w_time[i] = self.time_known[idx]
             w_weather[i] = self.weather_known[idx]
 
-        if self.augment:
+        if self.datagen is not None:
             X = self.datagen.flow(X, shuffle=False, batch_size=batch_size)[0]
 
         return (X,
@@ -120,6 +123,19 @@ class DualDataGenerator(Sequence):
         np.random.shuffle(self.indices)
 
 
+def _make_generator(idx_list, images, time_labels, weather_labels, time_known, weather_known, augment, batch_size):
+    """Construye un DualDataGenerator sobre un subconjunto de índices."""
+    return DualDataGenerator(
+        image_paths=images[idx_list],
+        time_labels=time_labels[idx_list],
+        weather_labels=weather_labels[idx_list],
+        time_known=time_known[idx_list],
+        weather_known=weather_known[idx_list],
+        augment=augment,
+        batch_size=batch_size,
+    )
+
+
 def create_splits(raw_dir=RAW_DIR, test_size=0.15, val_size=0.15, random_state=42, batch_size=32):
     images, time_labels, weather_labels, time_known, weather_known = load_dataset(raw_dir)
 
@@ -127,16 +143,13 @@ def create_splits(raw_dir=RAW_DIR, test_size=0.15, val_size=0.15, random_state=4
     train_idx, test_idx = train_test_split(idx, test_size=test_size, random_state=random_state)
     train_idx, val_idx = train_test_split(train_idx, test_size=val_size / (1 - test_size), random_state=random_state)
 
-    def split_data(idx_list):
-        return (
-            images[idx_list], time_labels[idx_list], weather_labels[idx_list],
-            time_known[idx_list], weather_known[idx_list]
-        )
-
     return (
-        DualDataGenerator(*split_data(train_idx), augment=True, batch_size=batch_size),
-        DualDataGenerator(*split_data(val_idx), augment=False, batch_size=batch_size),
-        DualDataGenerator(*split_data(test_idx), augment=False, batch_size=batch_size),
+        _make_generator(train_idx, images, time_labels, weather_labels, time_known, weather_known,
+                        augment=True, batch_size=batch_size),
+        _make_generator(val_idx, images, time_labels, weather_labels, time_known, weather_known,
+                        augment=False, batch_size=batch_size),
+        _make_generator(test_idx, images, time_labels, weather_labels, time_known, weather_known,
+                        augment=False, batch_size=batch_size),
     )
 
 

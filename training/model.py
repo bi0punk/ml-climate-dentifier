@@ -12,7 +12,7 @@ from tensorflow.keras.layers import (
 )
 from tensorflow.keras.optimizers import Adam
 
-from constants import IMG_SIZE, TIME_LABELS, WEATHER_LABELS
+from common.data import IMG_SIZE, TIME_LABELS, WEATHER_LABELS
 
 NUM_TIME = len(TIME_LABELS)
 NUM_WEATHER = len(WEATHER_LABELS)

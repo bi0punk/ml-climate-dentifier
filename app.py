@@ -4,7 +4,7 @@ import sys
 
 import cv2
 
-from inference.config import load_config
+from common.config import load_config
 from inference.predictor import Predictor
 from inference.streamer import Streamer
 from inference.visualizer import Visualizer

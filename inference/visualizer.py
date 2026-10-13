@@ -15,7 +15,7 @@ class Visualizer:
 
     def _setup_recorder(self):
         if self.record_config["enabled"]:
-            fourcc = cv2.VideoWriter_fourcc(*self.record_config["codec"])
+            fourcc = cv2.VideoWriter_fourcc(*self.record_config["codec"])  # type: ignore[attr-defined]
             w, h = self.config["width"], self.config["height"]
             self.out = cv2.VideoWriter(
                 self.record_config["output_path"],

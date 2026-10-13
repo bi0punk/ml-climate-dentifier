@@ -1,7 +1,7 @@
-import cv2
 import numpy as np
 from tensorflow.keras.models import load_model
-from tensorflow.keras.preprocessing.image import img_to_array
+
+from common.data import decode_labels, preprocess_frame
 
 
 class Predictor:
@@ -9,8 +9,9 @@ class Predictor:
         self.config = config
         self.model = load_model(config["model"]["path"])
         self.input_size = config["model"]["input_size"]
-        self.time_labels = config["labels"]["time"]
-        self.weather_labels = config["labels"]["weather"]
+        labels = decode_labels(config)
+        self.time_labels = labels["time"]
+        self.weather_labels = labels["weather"]
         self.smoothing_window = config["inference"]["smoothing_window"]
         self.confidence_threshold = config["inference"]["confidence_threshold"]
         self.model_type = config["model"].get("type", "single_6class")
@@ -19,9 +20,7 @@ class Predictor:
         self.weather_history = []
 
     def preprocess(self, frame):
-        img = cv2.resize(frame, (self.input_size, self.input_size))
-        img = img_to_array(img) / 255.0
-        return np.expand_dims(img, axis=0)
+        return preprocess_frame(frame, self.input_size)[None]
 
     def predict(self, frame):
         x = self.preprocess(frame)
