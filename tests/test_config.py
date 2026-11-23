@@ -10,7 +10,9 @@ def test_default_config_exists():
     assert os.path.exists(DEFAULT_CONFIG_PATH), f"Config not found: {DEFAULT_CONFIG_PATH}"
 
 
-def test_load_default_config():
+def test_load_default_config(monkeypatch):
+    for var in ("IP_CAMERA_URL", "RTSP_URL", "RTSP_USER", "RTSP_PASSWORD"):
+        monkeypatch.delenv(var, raising=False)
     cfg = load_config()
     assert "camera" in cfg
     assert "model" in cfg
@@ -32,6 +34,24 @@ def test_env_override(monkeypatch):
     cfg = load_config()
     assert cfg["camera"]["url"] == "rtsp://test:8554/stream"
     assert cfg["model"]["path"] == "models/test.h5"
+
+
+def test_rtsp_url_override(monkeypatch):
+    monkeypatch.delenv("IP_CAMERA_URL", raising=False)
+    monkeypatch.delenv("RTSP_USER", raising=False)
+    monkeypatch.delenv("RTSP_PASSWORD", raising=False)
+    monkeypatch.setenv("RTSP_URL", "rtsp://cam.local:554/stream")
+    cfg = load_config()
+    assert cfg["camera"]["url"] == "rtsp://cam.local:554/stream"
+
+
+def test_rtsp_credentials_are_composed(monkeypatch):
+    monkeypatch.delenv("IP_CAMERA_URL", raising=False)
+    monkeypatch.setenv("RTSP_URL", "rtsp://cam.local:554/stream")
+    monkeypatch.setenv("RTSP_USER", "admin")
+    monkeypatch.setenv("RTSP_PASSWORD", "p@ss word")
+    cfg = load_config()
+    assert cfg["camera"]["url"] == "rtsp://admin:p%40ss%20word@cam.local:554/stream"
 
 
 def test_env_override_precedence_over_yaml(monkeypatch):

@@ -13,7 +13,9 @@ crop:
   region: "bottom_half"  # bottom_half: toma solo la mitad inferior del frame (cámara dual-lens)
 
 model:
-  path: "models/weather_classifier_20260714_020842.h5"
+  # Ruta de ejemplo: los modelos .h5 no se incluyen en el repo (models/ está gitignored).
+  # Coloca tu modelo entrenado aquí o define MODEL_PATH en .env.
+  path: "models/weather_classifier.h5"
   input_size: 150
   type: "dual_head"  # single_6class or dual_head
 

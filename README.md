@@ -344,7 +344,7 @@ La imagen usa `python:3.10-slim` e incluye OpenCV con soporte ffmpeg.
 | `camera.max_reconnect_delay` | float | `60.0` | Espera máxima tras fallos repetidos (s) |
 | `crop.enabled` | bool | `true` | Recortar el frame |
 | `crop.region` | string | `"bottom_half"` | `bottom_half`: solo la mitad inferior (cámara dual-lens) |
-| `model.path` | string | `"models/weather_classifier_*.h5"` | Ruta al archivo `.h5` |
+| `model.path` | string | `"models/weather_classifier.h5"` | Ruta al archivo `.h5` (placeholder: el modelo no se incluye) |
 | `model.input_size` | int | `150` | Tamaño esperado por el modelo (px) |
 | `model.type` | string | `"dual_head"` | Formato: `single_6class` o `dual_head` |
 | `inference.frame_skip` | int | `5` | Predecir cada N frames |
@@ -367,12 +367,14 @@ La imagen usa `python:3.10-slim` e incluye OpenCV con soporte ffmpeg.
 
 | Variable | Descripción | Ejemplo |
 |----------|-------------|---------|
-| `IP_CAMERA_URL` | URL del stream (sobreescribe config.yaml) | `rtsp://192.168.1.92:554/onvif1` |
+| `IP_CAMERA_URL` | URL del stream (sobreescribe config.yaml). Tiene prioridad sobre `RTSP_URL` | `rtsp://192.168.1.92:554/onvif1` |
 | `MODEL_PATH` | Ruta al modelo (sobreescribe config.yaml) | `models/mi_modelo.h5` |
-| `RTSP_URL` | URL completa con credenciales | `rtsp://user:pass@ip:554/stream` |
-| `RTSP_USER` / `RTSP_PASSWORD` | Credenciales para componer `RTSP_URL` | `admin` / `pass` |
+| `RTSP_URL` | URL completa con credenciales (alternativa a `IP_CAMERA_URL`) | `rtsp://user:pass@ip:554/stream` |
+| `RTSP_USER` / `RTSP_PASSWORD` | Credenciales que se insertan en `RTSP_URL` si aún no las incluye | `admin` / `pass` |
 
-Las variables de entorno **siempre tienen prioridad** sobre `config.yaml`.
+Las variables de entorno **siempre tienen prioridad** sobre `config.yaml`. Los modelos `.h5`
+no se incluyen en el repositorio (`models/` está gitignored): entrena o copia uno y ajusta
+`MODEL_PATH` o `model.path` antes de ejecutar `python app.py`.
 
 ## Tests / CI
 
@@ -450,6 +452,10 @@ Cada imagen tiene solo **un label conocido** (time O weather, no ambos). El `Dua
 | `day_evening_night_classifier_20240728.h5` | 2024-07-28 | 3 (time only) | v1 single_6class | Solo clasifica momento del día |
 | `day_evening_night_clear_cloudy_partly_cloudy_classifier_20240729.h5` | 2024-07-29 | 6 (time+weather) | v1 single_6class | Primer intento de clasificación conjunta |
 | `day_evening_night_clear_cloudy_partly_cloudy_classifier_20240923.h5` | 2024-09-23 | 6 (time+weather) | v1 single_6class | Modelo v1 mejorado |
+
+Los archivos `.h5` no se versionan en este repositorio (`models/` está gitignored). La tabla
+describe los modelos usados durante el desarrollo; para ejecutar la inferencia debes aportar
+tu propio modelo y apuntar `model.path` o `MODEL_PATH` a él.
 
 Compatibilidad:
 
